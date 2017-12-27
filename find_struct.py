@@ -6,6 +6,7 @@ from lasagne.updates import adam
 from matplotlib import pyplot as plt
 from nolearn.lasagne import NeuralNet
 from sklearn import datasets
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 
@@ -99,22 +100,52 @@ def regr(X, y, X_valid, y_valid):
     plt.show()
 
 
+def find_digits(X, y, X_valid, y_valid):
+    max_hidden_layers = 1
+    max_neuron_units = 1000
+
+    loss = []
+    # history = list(range())
+    # 0, 0
+    l = InputLayer(shape=(None, X.shape[1]))
+    l = DenseLayer(l, num_units=len(np.unique(y)), nonlinearity=softmax)
+    net = NeuralNet(l, update=adam, update_learning_rate=0.01, max_epochs=2000)
+    net.fit(X, y)
+    y_pred = net.predict(X_valid)
+    loss_error = mean_squared_error(y_valid, y_pred)
+    loss_net = (0, 0, loss_error)
+    print(loss_net)
+    loss.append(loss_net)
+
+    for i in range(1, max_hidden_layers):
+        for j in range(1, max_neuron_units, 4):
+            l = InputLayer(shape=(None, X.shape[1]))
+            for k in range(i):
+                l = DenseLayer(l, num_units=j, nonlinearity=softmax)
+            l = DenseLayer(l, num_units=len(np.unique(y)), nonlinearity=softmax)
+            net = NeuralNet(l, update=adam, update_learning_rate=0.01, max_epochs=2000)
+
+            net.fit(X, y)
+            y_pred = net.predict(X_valid)
+            loss_error = mean_squared_error(y_valid, y_pred)
+            loss_net = (i, j, loss_error)
+            print(loss_net)
+            loss.append(loss_net)
+
+    print(min(loss, key=lambda x: x[2]))
+    # plot_loss(net)
+    # plt.title('Digits')
+    # plt.show()
+
+
 def main():
-    # Classification with two classes:
-
-    # IRIS
-    dataset = datasets.load_iris()
-    X, X_valid, y, y_valid = train_test_split(dataset.data, dataset.target, test_size=0.2,
-                                              random_state=42)
-    y = y.astype(np.int32)
-    iris(X, y, X_valid, y_valid)
-
     # DIGITS
     dataset = datasets.load_digits()
     X, X_valid, y, y_valid = train_test_split(dataset.data, dataset.target, test_size=0.2,
                                               random_state=42)
     y = y.astype(np.int32)
-    digits(X, y, X_valid, y_valid)
+    # digits(X, y, X_valid, y_valid)
+    find_digits(X, y, X_valid, y_valid)
 
     # # CANCER
     # dataset = datasets.load_breast_cancer()
