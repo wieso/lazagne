@@ -6,6 +6,7 @@ from lasagne.updates import adam
 from matplotlib import pyplot as plt
 from nolearn.lasagne import NeuralNet
 from sklearn import datasets
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 

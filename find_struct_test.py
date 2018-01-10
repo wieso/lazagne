@@ -6,6 +6,7 @@ from lasagne.updates import adam
 from matplotlib import pyplot as plt
 from nolearn.lasagne import NeuralNet
 from sklearn import datasets
+from sklearn.decomposition import PCA
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
@@ -278,49 +279,29 @@ def net4(X, y, n1, n2, n3, n4):
     return net
 
 
-def net5(X, y, n1, n2, n3, n4, n5):
+def net15(X, y):
     l = InputLayer(shape=(None, X.shape[1]))
     # ------- HIDDEN -----------
-    l = DenseLayer(l, num_units=n1, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n2, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n3, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n4, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n5, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
+    l = DenseLayer(l, num_units=1, nonlinearity=softmax)
     # ------- HIDDEN -----------
     l = DenseLayer(l, num_units=len(np.unique(y)), nonlinearity=softmax)
     net = NeuralNet(l, update=adam, update_learning_rate=0.01, max_epochs=250)
     return net
 
-
-def net6(X, y, n1, n2, n3, n4, n5, n6):
-    l = InputLayer(shape=(None, X.shape[1]))
-    # ------- HIDDEN -----------
-    l = DenseLayer(l, num_units=n1, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n2, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n3, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n4, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n5, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n6, nonlinearity=softmax)
-    # ------- HIDDEN -----------
-    l = DenseLayer(l, num_units=len(np.unique(y)), nonlinearity=softmax)
-    net = NeuralNet(l, update=adam, update_learning_rate=0.01, max_epochs=250)
-    return net
-
-
-def net7(X, y, n1, n2, n3, n4, n5, n6, n7):
-    l = InputLayer(shape=(None, X.shape[1]))
-    # ------- HIDDEN -----------
-    l = DenseLayer(l, num_units=n1, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n2, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n3, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n4, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n5, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n6, nonlinearity=softmax)
-    l = DenseLayer(l, num_units=n7, nonlinearity=softmax)
-    # ------- HIDDEN -----------
-    l = DenseLayer(l, num_units=len(np.unique(y)), nonlinearity=softmax)
-    net = NeuralNet(l, update=adam, update_learning_rate=0.01, max_epochs=250)
-    return net
 
 def fit_transform(net, X, y):
     k_loss = []
@@ -344,7 +325,7 @@ def fit_transform(net, X, y):
     return loss_net
 
 
-def neurons_find(X, y, X_valid, y_valid):
+def neurons_find(X, y):
     loss = []
     k_neurons = 15
 
@@ -395,26 +376,6 @@ def neurons_find(X, y, X_valid, y_valid):
                 loss_net = fit_transform(n4, X, y)
                 loss.append(loss_net)
 
-    # # NET 5
-    # for i in range(1, k_neurons):
-    #     for j in range(1, i):
-    #         for k in range(1, j):
-    #             for q in range(1, k):
-    #                 print(i, j, k, q, k_neurons - i - j - k - q)
-    #                 if i <= 1 \
-    #                         or j <= 1 \
-    #                         or k <= 1 \
-    #                         or q <= 1 \
-    #                         or k_neurons - i - j - k - q <= 1:
-    #                     continue
-    #                 print('=' * 40)
-    #                 print('net', i, j, k, q, k_neurons - i - j - k)
-    #                 print('=' * 40)
-    #                 n5 = net5(X, y, i, j, k, q, k_neurons - i - j - k)
-    #
-    #                 loss_net = fit_transform(n5, X, y)
-    #                 loss.append(loss_net)
-
     print('Min ', min(loss))
     print('Max ', max(loss))
     print(sorted(loss, reverse=True))
@@ -423,12 +384,14 @@ def neurons_find(X, y, X_valid, y_valid):
 def main():
     # DIGITS
     dataset = datasets.load_digits()
-    X, X_valid, y, y_valid = train_test_split(dataset.data, dataset.target, test_size=0.01,
-                                              random_state=42)
+    X, y = dataset.data, dataset.target
+
+    pca = PCA(n_components=19)
+    X = pca.fit_transform(X)
     y = y.astype(np.int32)
     # digits(X, y, X_valid, y_valid)
     # smart_find(X, y, X_valid, y_valid)
-    neurons_find(X, y, X_valid, y_valid)
+    neurons_find(X, y)
 
     # # CANCER
     # dataset = datasets.load_breast_cancer()
